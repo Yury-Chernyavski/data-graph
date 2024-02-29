@@ -6,7 +6,10 @@ export {
 } from "./IAdditionalSources/IAdditionalSources";
 export { 
 	type ICampaignSettings, 
-	type ICampaignSetting 
+	type ICampaignSetting, 
+	type IKeywordSetting,
+	type IBaseAdtext,
+	type IBidRule
 } from "./ICampaignSettings/ICampaignSettings";
 export { type IVariables, type IVariable } from "./IVariables/IVariables";
 export { type IPlaceholders } from "./IPlaceholders/IPlaceholders";

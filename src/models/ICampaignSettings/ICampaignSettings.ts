@@ -1,32 +1,4 @@
 import { IGeneralData } from '@/models';
-// import { IGeneralData, IPlaceholders, TGeneralType } from "@/models";
-
-// export interface ICampaignSettings extends Pick<TGeneralType, "__typename"> {
-// 	campaignSettings: ICampaignSetting[];
-// }
-
-// interface ICampaignSetting extends IGeneralData, IPlaceholders {
-// 	adwordsSetting: TAdwordsSetting,
-// 	sklikSetting?: null,
-// 	bingSetting?: null,
-// 	keywordSettings: TKeywordSetting[],
-// 	baseAdtexts: TBaseAdtext[],
-// 	bidRules: TBidRule[],
-// }
-
-
-// type TAdwordsSetting = Omit<TGeneralType, "name"> &
-// 	Pick<IPlaceholders, "getPlaceholdersWithoutConditions">
-
-// type TKeywordSetting = TGeneralType & IPlaceholders;
-
-// interface TBaseAdtext extends TGeneralType, IPlaceholders {
-// 	type: string,
-// 	parentId: number
-// }
-
-// type TBidRule = Omit<TKeywordSetting, "getPlaceholdersWithoutConditions">
-
 
 export interface ICampaignSettings {
 	campaignSettings: ICampaignSetting[]
@@ -34,9 +6,6 @@ export interface ICampaignSettings {
 }
 
 export interface ICampaignSetting extends IGeneralData {
-	// id: number
-	// icon: string
-	// name: string
 	getPlaceholdersWithoutConditions: string[]
 	getConditionsPlaceholders: string[]
 	adwordsSetting: IAdwordsSetting
@@ -45,7 +14,6 @@ export interface ICampaignSetting extends IGeneralData {
 	keywordSettings: IKeywordSetting[]
 	baseAdtexts: IBaseAdtext[]
 	bidRules: IBidRule[]
-	// __typename: string
 }
 
 export interface IAdwordsSetting {
