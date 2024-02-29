@@ -12,14 +12,11 @@ import ReactFlow, {
 	applyNodeChanges,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import data from "../../../example.json";
 import "./App.css";
 import { fetchData } from "@/api";
 import { IData } from "@/models";
 
 const App: FC = () => {
-	// const [data, setData] = useState<IData | null>(null);
-	// const [elements, setElements] = useState<{nodes: Node[], edges: Edge[]}>({nodes: [], edges: []})
 	const [nodes, setNodes] = useState<Node[] | []>([]);
 	const [edges, setEdges] = useState<Edge[] | []>([]);
 	
@@ -30,8 +27,8 @@ const App: FC = () => {
 				const res = await fetchData<IData>();
 
 				if (res) {
-					setNodes(convertToNode(data.data).nodes);
-					setEdges(convertToNode(data.data).edges);
+					setNodes(convertToNode(res.data).nodes);
+					setEdges(convertToNode(res.data).edges);
 				}
 			} catch (err) {
 				console.log(err);
