@@ -8,41 +8,12 @@ import {
 	IKeywordSetting,
 	IVariable
 } from "@/models";
-import { Edge, Node, Position, XYPosition } from "reactflow";
-
-type TGeneralTypes = IVariable |
-	IAdditionalSource |
-	IFeedExport |
-	ICampaignSetting |
-	IKeywordSetting |
-	IBaseAdtext |
-	IBidRule;
+import { Edge, Node, XYPosition } from "reactflow";
+import { createNode } from "./createNode";
 
 interface ISubAdditionalSource {
 	id: number;
 	__typename: string
-}
-
-const createNode = <T extends TGeneralTypes>(
-	item: T,
-	style: {
-		backgroundColor: string,
-		borderColor?: string,
-		height?: number
-	},
-	position: XYPosition,
-	targetId: string,
-	sourcePosition: Position = Position.Right,
-	targetPosition: Position = Position.Left
-): Node => {
-	return {
-		id: targetId,
-		data: { label: item.name },
-		position,
-		style,
-		sourcePosition,
-		targetPosition
-	}
 }
 
 const addEdge = (elemOrArrElems: string[] | ISubAdditionalSource, edges: Edge[], targetId: string): void => {
@@ -70,89 +41,78 @@ export const convertToNode = (data: IData): { nodes: Node[], edges: Edge[] } => 
 		for (let i = 0; i < arr.length; i++) {
 			for (let j = 0; j < modifierWithPlaceholder.length; j++) {
 				if (modifierWithPlaceholder[j].placeholderName === arr[i]) {
-					modifierWithPlaceholder.splice(i, 1);
-					return arr[i];
+					return modifierWithPlaceholder.splice(i, 1);
 				}
 			}
 		}
 	});
 
 	dateFieldVariables.forEach((item: IVariable, vIndex: number) => {
-		const targetId = item.placeholderName;
-		const position = item.additionalSource ?
+		const targetId: string = item.placeholderName;
+		const position: XYPosition = item.additionalSource ?
 			{ x: 400, y: vIndex * 100 + 200 } :
 			{ x: 0, y: vIndex * 100 - 0 };
-		const style = { backgroundColor: "#448edc" };
-		const elem = createNode<IVariable>(item, style, position, targetId);
+		const type: string = "DataField";
 
-		nodes.push(elem);
+		nodes.push(createNode<IVariable>(item, position, targetId, type));
 		addEdge(item.getPlaceholdersWithoutConditions, edges, targetId);
 		item.additionalSource && addEdge(item.additionalSource, edges, targetId);
 	});
 
 	data.additionalSources.additionalSources.forEach((item: IAdditionalSource) => {
-		const targetId = String(item.id);
-		const position = { x: 200, y: nodes.length * 100 - 300 };
-		const style = { backgroundColor: "#ffdaaa" };
+		const targetId: string = String(item.id);
+		const position: XYPosition = { x: 200, y: nodes.length * 100 - 300 };
+		const type: string = item.__typename;
 
-		nodes.push(createNode<IAdditionalSource>(item, style, position, targetId));
+		nodes.push(createNode<IAdditionalSource>(item, position, targetId, type));
 		addEdge([item.mappingField], edges, targetId);
 	});
 
 	modifierWithoutPlaceholderAndImageGen.forEach((item: IVariable) => {
-		const targetId = item.placeholderName;
-		const position = { x: 600, y: nodes.length * 100 };
-		const style = { backgroundColor: "#9bcc63" };
+		const targetId: string = item.placeholderName;
+		const position: XYPosition = { x: 600, y: nodes.length * 100 };
+		const type: string = "Modifier";
 
 
-		nodes.push(createNode<IVariable>(item, style, position, targetId));
+		nodes.push(createNode<IVariable>(item, position, targetId, type));
 		addEdge(item.getPlaceholdersWithoutConditions, edges, targetId);
 	});
 
 	modifierWithPlaceholder.forEach((item: IVariable) => {
-		const targetId = item.placeholderName;
-		const position = { x: 800, y: nodes.length * 100 }
-		const style = { backgroundColor: "#9bcc63" };
+		const targetId: string = item.placeholderName;
+		const position: XYPosition = { x: 800, y: nodes.length * 100 };
+		const type: string = "Modifier";
 
-
-		nodes.push(createNode<IVariable>(item, style, position, targetId));
+		nodes.push(createNode<IVariable>(item, position, targetId, type));
 		addEdge(item.getPlaceholdersWithoutConditions, edges, targetId);
 	});
 
 
 	modifierWithRef.forEach((item: IVariable) => {
-		const targetId = item.placeholderName;
+		const targetId: string = item.placeholderName;
+		const position: XYPosition = { x: 1000, y: nodes.length * 100 };
+		const type: string = "Modifier";
 
-		const position = { x: 1000, y: nodes.length * 100 };
-		const style = { backgroundColor: "#9bcc63" };
-
-
-		nodes.push(createNode<IVariable>(item, style, position, targetId));
+		nodes.push(createNode<IVariable>(item, position, targetId, type));
 		addEdge(item.getPlaceholdersWithoutConditions, edges, targetId);
 	});
 
 	modifierWithImageGen.forEach((item: IVariable) => {
-		const targetId = item.placeholderName;
+		const targetId: string = item.placeholderName;
+		const position: XYPosition = { x: 1200, y: nodes.length * 100 };
+		const type: string = "Modifier";
 
-		const position = { x: 1200, y: nodes.length * 100 };
-		const style = { backgroundColor: "#9bcc63" };
-
-
-		nodes.push(createNode<IVariable>(item, style, position, targetId));
+		nodes.push(createNode<IVariable>(item, position, targetId, type));
 		addEdge(item.getPlaceholdersWithoutConditions, edges, targetId);
 		item.imageGen && addEdge(item.imageGen.getPlaceholdersWithoutConditions, edges, targetId);
 	});
 
 	data.feedExports.feedExports.forEach((item: IFeedExport, index: number) => {
-		const targetId = String(item.id);
-		const position = { x: 1400, y: index * 100 };
-		const style = {
-			backgroundColor: "#f1f1f1",
-			borderColor: "#fe689d",
-			height: 70,
-		};
+		const targetId: string = String(item.id);
+		const position: XYPosition = { x: 1400, y: index * 100 };
+		const type: string = item.__typename;
 
-		nodes.push(createNode<IFeedExport>(item, style, position, targetId));
+		nodes.push(createNode<IFeedExport>(item, position, targetId, type));
 		addEdge(item.getPlaceholdersWithoutConditions, edges, targetId);
 	});
 
@@ -162,65 +122,51 @@ export const convertToNode = (data: IData): { nodes: Node[], edges: Edge[] } => 
 			(a.id > b.id) ? 1 : -1
 		));
 
-		const targetId = String(item.id);
-		const position = { x: 800, y: 500 };
-		const style = {
-			backgroundColor: "#f1f1f1",
-			height: 70,
-		};
+		const targetId: string = String(item.id);
+		const position: XYPosition = { x: 800, y: 500 };
+		const type: string = item.__typename;
+		
 
 		item.keywordSettings.forEach((kItem: IKeywordSetting, index: number) => {
-			const targetId = String(kItem.id);
-			const position = { x: 1400, y: index * 100 + 400 };
-			const style = {
-				backgroundColor: "#f1f1f1",
-				borderColor: "#fe689d",
-				height: 70,
-			};
+			const targetId: string = String(kItem.id);
+			const position: XYPosition = { x: 1400, y: index * 100 + 400 };
+			const type: string = kItem.__typename;
+			
 
-			nodes.push(createNode<IKeywordSetting>(kItem, style, position, targetId));
+			nodes.push(createNode<IKeywordSetting>(kItem, position, targetId, type));
 			addEdge(kItem.getPlaceholdersWithoutConditions, edges, targetId);
 			addEdge([String(item.id)], edges, targetId);
 		});
 
 		
 		sortBaseAsText.forEach((bItem: IBaseAdtext, index: number) => {
-			const targetId = String(bItem.id);
-			const position = { x: index * 100 + 1400, y: index * 100 + 700 };
-			const style = {
-				backgroundColor: "#f1f1f1",
-				borderColor: "#fe689d",
-				height: 70,
-			};
+			const targetId: string = String(bItem.id);
+			const position: XYPosition = { x: index * 120 + 1400, y: index * 150 + 700 };
+			const type: string = index === sortBaseAsText.length - 1 ? item.__typename : bItem.__typename;
+			
 
 			nodes.push(createNode<IBaseAdtext>(
 				bItem,
-				style,
 				position,
 				targetId,
-				Position.Bottom,
-				Position.Left,
+				type
 			));
 			addEdge(bItem.getPlaceholdersWithoutConditions, edges, targetId);
 			addEdge([String(bItem.parentId)], edges, targetId);
 			addEdge([String(item.id)], edges, targetId);
 		});
 
-		item.bidRules.forEach((kItem: IBidRule, index: number) => {
-			const targetId = String(kItem.id);
-			const position = { x: 1400, y: index * 100 + 1100 };
-			const style = {
-				backgroundColor: "#f1f1f1",
-				borderColor: "#fe689d",
-				height: 70,
-			};
+		item.bidRules.forEach((bidItem: IBidRule, index: number) => {
+			const targetId: string = String(bidItem.id);
+			const position: XYPosition = { x: 1400, y: index * 150 + 1200 };
+			const type: string = bidItem.__typename;
 
-			nodes.push(createNode<IBidRule>(kItem, style, position, targetId));
-			addEdge(kItem.getConditionsPlaceholders, edges, targetId);
+			nodes.push(createNode<IBidRule>(bidItem, position, targetId, type));
+			addEdge(bidItem.getConditionsPlaceholders, edges, targetId);
 			addEdge([String(item.id)], edges, targetId);
 		});
 
-		nodes.push(createNode<ICampaignSetting>(item, style, position, targetId));
+		nodes.push(createNode<ICampaignSetting>(item, position, targetId, type));
 
 		uniqValueArr = [...new Set([
 			...item.getConditionsPlaceholders, 

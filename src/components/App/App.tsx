@@ -1,4 +1,6 @@
+import { fetchData } from "@/api";
 import { convertToNode } from "@/features/convertToNode";
+import { IData } from "@/models";
 import { FC, useCallback, useEffect, useState } from "react";
 import ReactFlow, {
 	Background,
@@ -13,13 +15,31 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import "./App.css";
-import { fetchData } from "@/api";
-import { IData } from "@/models";
+import {
+	AdditionalSourceNode,
+	BaseAdNode,
+	BidRuleNode,
+	CampaignNode,
+	DataField,
+	FeedExportNode,
+	KeywordNode,
+	ModifierNode,
+} from "@/components";
+
+const nodeTypes = {
+	DataField: DataField,
+	Modifier: ModifierNode,
+	AdditionalSource: AdditionalSourceNode,
+	FeedExport: FeedExportNode,
+	CampaignSetting: CampaignNode,
+	KeywordSetting: KeywordNode,
+	BaseAdtext: BaseAdNode,
+	BidRule: BidRuleNode,
+};
 
 const App: FC = () => {
 	const [nodes, setNodes] = useState<Node[] | []>([]);
 	const [edges, setEdges] = useState<Edge[] | []>([]);
-	
 
 	useEffect(() => {
 		const getData = async () => {
@@ -51,10 +71,14 @@ const App: FC = () => {
 	);
 
 	const onConnect = useCallback(
-		(params: Edge | Connection) =>
-			setEdges(oldEdges => addEdge(params, oldEdges)),
+		(params: Edge | Connection) => {
+			setEdges(oldEdges => addEdge(params, oldEdges));
+		},
 		[setEdges],
 	);
+
+	console.log(nodes);
+	
 
 	return (
 		<div style={{ width: "100vw", height: "100vh" }}>
@@ -63,7 +87,8 @@ const App: FC = () => {
 				edges={edges}
 				onNodesChange={onNodesChange}
 				onEdgesChange={onEdgesChange}
-				onConnect={onConnect}>
+				onConnect={onConnect}
+				nodeTypes={nodeTypes}>
 				<Background
 					color="white"
 					gap={16}

@@ -12,6 +12,5 @@ export {
 	type IBidRule
 } from "./ICampaignSettings/ICampaignSettings";
 export { type IVariables, type IVariable } from "./IVariables/IVariables";
-export { type IPlaceholders } from "./IPlaceholders/IPlaceholders";
 export { type IGeneralData } from "./IGeneralData/IGeneralData";
-export { type TGeneralType } from "./TGeneralTypes/TGeneralTypes";
+export { type TUnionOfInterface } from "./TUnionOfInterface/TUnionOfInterface";

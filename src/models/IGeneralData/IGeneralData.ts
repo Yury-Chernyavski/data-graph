@@ -4,5 +4,3 @@ export interface IGeneralData {
 	name: string,
 	__typename: string
 }
-
-// TODO: delete interface
