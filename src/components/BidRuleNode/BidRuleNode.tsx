@@ -13,7 +13,7 @@ export const BidRuleNode = ({
 				position={Position.Left}
 			/>
 			<div>
-				<label>{data.label}</label>
+				<label>BID: {data.label}</label>
 			</div>
 		</Node>
 	);

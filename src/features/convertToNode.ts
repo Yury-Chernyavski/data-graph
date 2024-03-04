@@ -1,3 +1,5 @@
+import { createEdge } from "@/features/addEdge";
+import { createNode } from "@/features/createNode";
 import {
 	IAdditionalSource,
 	IBaseAdtext,
@@ -9,24 +11,8 @@ import {
 	IVariable
 } from "@/models";
 import { Edge, Node, XYPosition } from "reactflow";
-import { createNode } from "./createNode";
 
-interface ISubAdditionalSource {
-	id: number;
-	__typename: string
-}
-
-const addEdge = (elemOrArrElems: string[] | ISubAdditionalSource, edges: Edge[], targetId: string): void => {
-	if (Array.isArray(elemOrArrElems)) {
-		elemOrArrElems.forEach((placeholder: string) => {
-			const nodeId = placeholder;
-			edges.push({ id: `${nodeId}-${targetId}`, source: nodeId, target: targetId });
-		});
-	} else {
-		edges.push({ id: `${elemOrArrElems.id}-${targetId}`, source: String(elemOrArrElems.id), target: targetId })
-	}
-};
-
+// TODO: unify the function
 
 export const convertToNode = (data: IData): { nodes: Node[], edges: Edge[] } => {
 	const nodes: Node[] = [];
@@ -55,8 +41,10 @@ export const convertToNode = (data: IData): { nodes: Node[], edges: Edge[] } => 
 		const type: string = "DataField";
 
 		nodes.push(createNode<IVariable>(item, position, targetId, type));
-		addEdge(item.getPlaceholdersWithoutConditions, edges, targetId);
-		item.additionalSource && addEdge(item.additionalSource, edges, targetId);
+		item.getPlaceholdersWithoutConditions.forEach(el => {
+			edges.push(createEdge(el, targetId));
+		});
+		item.additionalSource && edges.push(createEdge(String(item.additionalSource.id), targetId));
 	});
 
 	data.additionalSources.additionalSources.forEach((item: IAdditionalSource) => {
@@ -65,7 +53,7 @@ export const convertToNode = (data: IData): { nodes: Node[], edges: Edge[] } => 
 		const type: string = item.__typename;
 
 		nodes.push(createNode<IAdditionalSource>(item, position, targetId, type));
-		addEdge([item.mappingField], edges, targetId);
+		edges.push(createEdge(item.mappingField, targetId));
 	});
 
 	modifierWithoutPlaceholderAndImageGen.forEach((item: IVariable) => {
@@ -75,7 +63,9 @@ export const convertToNode = (data: IData): { nodes: Node[], edges: Edge[] } => 
 
 
 		nodes.push(createNode<IVariable>(item, position, targetId, type));
-		addEdge(item.getPlaceholdersWithoutConditions, edges, targetId);
+		item.getConditionsPlaceholders.forEach(el => {
+			edges.push(createEdge(el, targetId));
+		})
 	});
 
 	modifierWithPlaceholder.forEach((item: IVariable) => {
@@ -84,7 +74,9 @@ export const convertToNode = (data: IData): { nodes: Node[], edges: Edge[] } => 
 		const type: string = "Modifier";
 
 		nodes.push(createNode<IVariable>(item, position, targetId, type));
-		addEdge(item.getPlaceholdersWithoutConditions, edges, targetId);
+		item.getPlaceholdersWithoutConditions.forEach(el => {
+			edges.push(createEdge(el, targetId));
+		})
 	});
 
 
@@ -94,7 +86,9 @@ export const convertToNode = (data: IData): { nodes: Node[], edges: Edge[] } => 
 		const type: string = "Modifier";
 
 		nodes.push(createNode<IVariable>(item, position, targetId, type));
-		addEdge(item.getPlaceholdersWithoutConditions, edges, targetId);
+		item.getPlaceholdersWithoutConditions.forEach(el => {
+			edges.push(createEdge(el, targetId));
+		});
 	});
 
 	modifierWithImageGen.forEach((item: IVariable) => {
@@ -103,8 +97,12 @@ export const convertToNode = (data: IData): { nodes: Node[], edges: Edge[] } => 
 		const type: string = "Modifier";
 
 		nodes.push(createNode<IVariable>(item, position, targetId, type));
-		addEdge(item.getPlaceholdersWithoutConditions, edges, targetId);
-		item.imageGen && addEdge(item.imageGen.getPlaceholdersWithoutConditions, edges, targetId);
+		item.getPlaceholdersWithoutConditions.forEach(el => {
+			edges.push(createEdge(el, targetId));
+		});
+		item.imageGen && item.imageGen.getPlaceholdersWithoutConditions.forEach(el => {
+			edges.push(createEdge(el, targetId));
+		})
 	});
 
 	data.feedExports.feedExports.forEach((item: IFeedExport, index: number) => {
@@ -113,7 +111,9 @@ export const convertToNode = (data: IData): { nodes: Node[], edges: Edge[] } => 
 		const type: string = item.__typename;
 
 		nodes.push(createNode<IFeedExport>(item, position, targetId, type));
-		addEdge(item.getPlaceholdersWithoutConditions, edges, targetId);
+		item.getPlaceholdersWithoutConditions.forEach(el => {
+			edges.push(createEdge(el, targetId));
+		});
 	});
 
 	data.campaignSettings.campaignSettings.forEach((item: ICampaignSetting) => {
@@ -125,25 +125,27 @@ export const convertToNode = (data: IData): { nodes: Node[], edges: Edge[] } => 
 		const targetId: string = String(item.id);
 		const position: XYPosition = { x: 800, y: 500 };
 		const type: string = item.__typename;
-		
+
 
 		item.keywordSettings.forEach((kItem: IKeywordSetting, index: number) => {
 			const targetId: string = String(kItem.id);
 			const position: XYPosition = { x: 1400, y: index * 100 + 400 };
 			const type: string = kItem.__typename;
-			
+
 
 			nodes.push(createNode<IKeywordSetting>(kItem, position, targetId, type));
-			addEdge(kItem.getPlaceholdersWithoutConditions, edges, targetId);
-			addEdge([String(item.id)], edges, targetId);
+			kItem.getPlaceholdersWithoutConditions.forEach(el => {
+				edges.push(createEdge(el, targetId));
+			});
+			edges.push(createEdge(String(item.id), targetId));
 		});
 
-		
+
 		sortBaseAsText.forEach((bItem: IBaseAdtext, index: number) => {
 			const targetId: string = String(bItem.id);
 			const position: XYPosition = { x: index * 120 + 1400, y: index * 150 + 700 };
 			const type: string = index === sortBaseAsText.length - 1 ? item.__typename : bItem.__typename;
-			
+
 
 			nodes.push(createNode<IBaseAdtext>(
 				bItem,
@@ -151,9 +153,11 @@ export const convertToNode = (data: IData): { nodes: Node[], edges: Edge[] } => 
 				targetId,
 				type
 			));
-			addEdge(bItem.getPlaceholdersWithoutConditions, edges, targetId);
-			addEdge([String(bItem.parentId)], edges, targetId);
-			addEdge([String(item.id)], edges, targetId);
+			bItem.getPlaceholdersWithoutConditions.forEach(el => {
+				edges.push(createEdge(el, targetId));
+			})
+			edges.push(createEdge(String(bItem.parentId), targetId));
+			edges.push(createEdge(String(item.id), targetId));
 		});
 
 		item.bidRules.forEach((bidItem: IBidRule, index: number) => {
@@ -162,18 +166,22 @@ export const convertToNode = (data: IData): { nodes: Node[], edges: Edge[] } => 
 			const type: string = bidItem.__typename;
 
 			nodes.push(createNode<IBidRule>(bidItem, position, targetId, type));
-			addEdge(bidItem.getConditionsPlaceholders, edges, targetId);
-			addEdge([String(item.id)], edges, targetId);
+			bidItem.getConditionsPlaceholders.forEach(el => {
+				edges.push(createEdge(el, targetId));
+			});
+			edges.push(createEdge(String(item.id), targetId));
 		});
 
 		nodes.push(createNode<ICampaignSetting>(item, position, targetId, type));
 
 		uniqValueArr = [...new Set([
-			...item.getConditionsPlaceholders, 
+			...item.getConditionsPlaceholders,
 			...item.getPlaceholdersWithoutConditions
 		])];
-		
-		addEdge(uniqValueArr, edges, targetId);
+
+		uniqValueArr.forEach(el => {
+			edges.push(createEdge(el, targetId));
+		});
 	});
 
 	return { nodes, edges }

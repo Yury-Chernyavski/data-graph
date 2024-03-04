@@ -1,4 +1,14 @@
 import { fetchData } from "@/api";
+import {
+	AdditionalSourceNode,
+	BaseAdNode,
+	BidRuleNode,
+	CampaignNode,
+	DataField,
+	FeedExportNode,
+	KeywordNode,
+	ModifierNode,
+} from "@/components";
 import { convertToNode } from "@/features/convertToNode";
 import { IData } from "@/models";
 import { FC, useCallback, useEffect, useState } from "react";
@@ -15,16 +25,6 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import "./App.css";
-import {
-	AdditionalSourceNode,
-	BaseAdNode,
-	BidRuleNode,
-	CampaignNode,
-	DataField,
-	FeedExportNode,
-	KeywordNode,
-	ModifierNode,
-} from "@/components";
 
 const nodeTypes = {
 	DataField: DataField,
@@ -47,8 +47,11 @@ const App: FC = () => {
 				const res = await fetchData<IData>();
 
 				if (res) {
-					setNodes(convertToNode(res.data).nodes);
-					setEdges(convertToNode(res.data).edges);
+					const data = convertToNode(res.data);
+					// const data2 = convertToNode2(res.data);
+					
+					setNodes(data.nodes);
+					setEdges(data.edges);
 				}
 			} catch (err) {
 				console.log(err);
@@ -76,9 +79,6 @@ const App: FC = () => {
 		},
 		[setEdges],
 	);
-
-	console.log(nodes);
-	
 
 	return (
 		<div style={{ width: "100vw", height: "100vh" }}>
